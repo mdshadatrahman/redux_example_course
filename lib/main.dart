@@ -14,53 +14,79 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const HomePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+enum ItemFilter { all, longTexts, shortTexts }
 
-  final String title;
+@immutable
+class State {
+  final Iterable<String> items;
+  final ItemFilter filter;
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  const State({
+    required this.items,
+    required this.filter,
+  });
+
+  Iterable<String> get filteredItems {
+    switch (filter) {
+      case ItemFilter.all:
+        return items;
+      case ItemFilter.longTexts:
+        return items.where((element) => element.length >= 10);
+      case ItemFilter.shortTexts:
+        return items.where((element) => element.length <= 3);
+    }
+  }
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+@immutable
+class ChangeFilterTypeAction extends Action {
+  final ItemFilter filter;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  const ChangeFilterTypeAction(this.filter);
+}
+
+@immutable
+abstract class Action {
+  const Action();
+}
+
+@immutable
+abstract class ItemAction extends Action {
+  final String item;
+  const ItemAction(this.item);
+}
+
+@immutable
+class AddItemAction extends ItemAction {
+  const AddItemAction(String item) : super(item);
+}
+
+@immutable
+class RemoveItemAction extends ItemAction {
+  const RemoveItemAction(String item) : super(item);
+}
+
+extension AddRemoveItems<T> on Iterable<T> {
+  Iterable<T> operator +(T other) => followedBy([other]);
+  Iterable<T> operator -(T other) => where((element) => element != other);
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const Text('Home Page'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+      body: const Center(
+        child: Text('Hello World'),
       ),
     );
   }
