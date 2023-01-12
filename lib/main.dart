@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:redux/redux.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 
 void main() {
   runApp(const MyApp());
@@ -75,6 +77,23 @@ extension AddRemoveItems<T> on Iterable<T> {
   Iterable<T> operator +(T other) => followedBy([other]);
   Iterable<T> operator -(T other) => where((element) => element != other);
 }
+
+Iterable<String> addItemReducer(
+  Iterable<String> previousItem,
+  AddItemAction action,
+) =>
+    previousItem + action.item;
+
+Iterable<String> removeItemReducer(
+  Iterable<String> previousItem,
+  RemoveItemAction action,
+) =>
+    previousItem - action.item;
+
+Reducer<Iterable<String>> itemReducer = combineReducers<Iterable<String>>([
+  TypedReducer<Iterable<String>, AddItemAction>(addItemReducer),
+  TypedReducer<Iterable<String>, RemoveItemAction>(removeItemReducer), 
+]);
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
